@@ -1,0 +1,23 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.game__box{
+    display: flex;
+    background-color: lightblue;
+}
+.card{
+    background-color: rgb(255, 0, 0);
+    color: white;
+    margin: 20px;
+    padding: 50px;
+    line-height: 50px;
+}
+.selected{
+    background-color: blue;
+}
+.completed{
+    background-color: green;
+}
