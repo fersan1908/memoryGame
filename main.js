@@ -1,5 +1,5 @@
 const gameBox = document.getElementById("game");
-const allCards = document.querySelectorAll(".card");
+const allCards = document.querySelectorAll(".back");
 allCards.length %2 !== 0 ? alert("Numero de cartas introducido en HTML es impar") : "";
 
 /*Lógica de la colocación de las tarjetas*/
@@ -29,26 +29,78 @@ const getRandomPokemon = (cards) => {
 }
 getRandomPokemon(allCards.length);
 
+/********************************************** */
 /*Lógica de completar las parejas haciendo click*/
+/********************************************** */
+
+//Variable para dar permiso para empezar a clickar sobre cartas. (mientras roten queda false y cuando se detengan queda true)
+let ready = false;
+
+//Muestra todas las tarjetas antes de empezar la partida durante X segundos, luego las voltea y empieza el juego.
+for (let i = 0; i < allCards.length; i++) {
+    allCards[i].parentElement.classList.add("showCard");
+}
+setTimeout(() => {
+    for (let i = 0; i < allCards.length; i++) {
+        allCards[i].parentElement.classList.add("hideCard");
+    }
+}, 3000);
+setTimeout(() => {
+    for (let i = 0; i < allCards.length; i++) {
+        allCards[i].parentElement.classList.remove("showCard");
+        allCards[i].parentElement.classList.remove("hideCard");
+        ready = true;
+    }
+}, 4500);
+
+//Creamos array para registrar las ultimas tarjetas clickadas y trabajar con ellas.
 const cardClicks = [];
+
 gameBox.addEventListener("click", (e) =>{
-    //registrar últimos clicks
-    cardClicks.unshift(e.target);
-    //si se registra un click sobre una pareja completada
-    cardClicks[0].classList.contains("completed") ? cardClicks[0] = cardClicks[1] : "";  
-    if(cardClicks.length > 1 && cardClicks[1].classList.contains("selected") && !cardClicks[1].classList.contains("completed") && cardClicks[0] !== cardClicks[1]){
-        // el anterior click contiene selected, no es una pareja completada y no fue sobre esta misma carta
-        if(cardClicks[1].textContent == cardClicks[0].textContent){
-            // Y además hace pareja
-            cardClicks[0].classList.add("selected");
-            cardClicks[0].classList.add("completed");
-            cardClicks[1].classList.add("completed");
+    if(ready){
+        //registrar últimos clicks (quiero registrar la carta, no la cara, que es donde pincho, por eso parentElement)
+        cardClicks.unshift(e.target.parentElement);
+
+        //Chequeamos: Existe click previo, el click previo contiene .showCard, no es de una pareja completada y el click actual no ha sido en el mismo sitio que el anterior.
+        if(
+            cardClicks.length > 1 &&
+            cardClicks[1].classList.contains("showCard") && 
+            !cardClicks[0].classList.contains("completed") &&
+            !cardClicks[1].classList.contains("completed") && 
+            cardClicks[0] !== cardClicks[1]
+            ){
+            // Y si además de todo eso, hace pareja: 
+            if(cardClicks[1].children[1].textContent == cardClicks[0].children[1].textContent){
+                cardClicks[0].classList.add("showCard");
+                cardClicks[0].classList.add("completed");
+                cardClicks[1].classList.add("completed");
+            }else{
+                // Pero si no hace pareja, comprobamos que el click anterior fue sobre una carta y no otro sitio (si es otro sitio, hacemos que el click actual valga como si fuera el pasado) y si efectivamente se hizo click en una carta pero que no ha hecho pareja, añadimos .showcard para que el usuario vea que ha pinchado en una carta mala, luego quitamos .showCard, y ponemos .hidecard para volverlas a esconder. Todo con timers para que la animación de las cartas sea correcta y se vuelvan las cartas a girar.
+                if(!cardClicks[0].classList.contains("card")){
+                    cardClicks[0] = cardClicks[1];
+                }else{
+                    ready = false;
+                    cardClicks[1].classList.add("showCard");
+                    cardClicks[0].classList.add("showCard");
+                    setTimeout(() => {
+                        cardClicks[1].classList.remove("showCard");
+                        cardClicks[0].classList.remove("showCard");
+                        cardClicks[1].classList.add("hideCard");
+                        cardClicks[0].classList.add("hideCard");
+                    }, 500);
+                    setTimeout(() => {
+                        cardClicks[1].classList.remove("hideCard");
+                        cardClicks[0].classList.remove("hideCard");
+                        ready = true;
+                    }, 1500); 
+                }
+            }
         }else{
-            // Pero no es una pareja correcta 
-            cardClicks[1].classList.remove("selected");
+            // Venimos aqui porque anterior click NO contiene showCard, o al menos no es de una pareja completada y de paso comprobamos que hemos clickado sobre una carta y no sobre otra cosa, ahí entonces volteamos la primera carta.
+            cardClicks[0].classList.contains("card") && !cardClicks[0].classList.contains("completed") ? cardClicks[0].classList.add("showCard") : "";
+
+            //si se registra un click en una pareja completada hacemos que el último click quede registrado como la carta volteada y no sobre la carta completada que hemos hecho click.
+            cardClicks[0].classList.contains("completed") ? cardClicks[0] = cardClicks[1] : "";
         }
-    }else{
-        // El anterior click NO contiene selected, o al menos no es de una pareja completada
-        cardClicks[0].classList.add("selected");
     }
 });
