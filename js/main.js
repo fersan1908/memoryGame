@@ -14,9 +14,9 @@ let interval;
 const printTime = (first) => {
     const diference =  secondTime = new Date().getTime() - first;
     const milliseconds = String(diference).slice(-3);
-        var seconds = (diference / 1000);
-        var minutes = Math.floor(seconds / 60);
-        var hours = "";
+        let seconds = (diference / 1000);
+        let minutes = Math.floor(seconds / 60);
+        let hours = "";
         if (minutes > 59) {
             hours = Math.floor(minutes / 60);
             hours = (hours >= 10) ? hours : "0" + hours;
@@ -38,7 +38,7 @@ const getRandomPokemon = (cards) => {
     //Traemos la mitad de pokemons aleatorios que cartas hay en html sin que se repita ninguno
     let randomPokemons = [];
     while(randomPokemons.length < cards / 2){
-        let random = Math.floor((Math.random() * (151 - 1 + 1)) + 1);
+        let random = Math.floor((Math.random() * (150 - 1 + 1)) + 1);
         !randomPokemons.includes(random) ? randomPokemons.push(random) : "";
     }
 
@@ -52,7 +52,9 @@ const getRandomPokemon = (cards) => {
     //Usamos los las randomPositions para asignar los randomPokemons que hemos traido a las cartas del dom
     let count = 0; 
     for (let i = 0; i < cards; i++) { //si no entiendes este for me dices.
-        allCards[randomPositions[i]].textContent = randomPokemons[count];
+        /*allCards[randomPositions[i]].textContent = randomPokemons[count];*/
+        allCards[randomPositions[i]].dataset.pokeNum = randomPokemons[count];
+        allCards[randomPositions[i]].children[0].setAttribute("src", `./assets/img/pokemons/${randomPokemons[count]}.png`);
         i %2 !== 0 ? count++ : "";
     }
 }
@@ -69,7 +71,13 @@ const gameEnded = (allCards) => {
     return ended;
 }
 playBtn.addEventListener("click", ()=>{
-    //BUUUUUUUUUG si reinicio con cartas boca arriba, da conflicto, hay que desactiva el boton cuando haya cartas boca arriba tanto en la animacion inicial como en mitad del juego. Tambien da conflicto si le doy a jugar de nuevo cuando ha acabado la partida con todas las cartas levantadas.
+    //Nos aseguramos de borrar todas las clases que puedan tener las tarjetas de partidas anteriores para que no interfieran.
+    for (let i = 0; i < allCards.length; i++) {
+        allCards[i].parentElement.classList.remove("showCard");
+        allCards[i].parentElement.classList.remove("hideCard");
+        allCards[i].parentElement.classList.remove("completed");  
+    }
+
     interval !== "" ? clearInterval(interval) : "";
     playBtn.textContent = "Reiniciar";
     crono[0].textContent = "00";
@@ -110,8 +118,9 @@ gameBox.addEventListener("click", (e) =>{
                 printTime(firstTime);
             }, 100);
         }
+
         //registrar últimos clicks (quiero registrar la carta, no la cara, que es donde pincho, por eso parentElement)
-        cardClicks.unshift(e.target.parentElement);
+        e.target.classList.contains("front") ? cardClicks.unshift(e.target.parentElement) : "";
 
         //Chequeamos: Existe click previo, el click previo contiene .showCard, no es de una pareja completada y el click actual no ha sido en el mismo sitio que el anterior.
         if(
@@ -121,8 +130,9 @@ gameBox.addEventListener("click", (e) =>{
             !cardClicks[1].classList.contains("completed") && 
             cardClicks[0] !== cardClicks[1]
             ){
-            // Y si además de todo eso, hace pareja: 
-            if(cardClicks[1].children[1].textContent == cardClicks[0].children[1].textContent){
+            // Y si además de todo eso, hace pareja:
+            /*if(cardClicks[1].children[1].textContent == cardClicks[0].children[1].textContent){ */ 
+            if(cardClicks[1].children[1].dataset.pokeNum == cardClicks[0].children[1].dataset.pokeNum){
                 cardClicks[0].classList.add("showCard");
                 cardClicks[0].classList.add("completed");
                 cardClicks[1].classList.add("completed");
