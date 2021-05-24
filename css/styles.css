@@ -30,8 +30,6 @@ img{
     }
   }
 
-  
-
 
 .card{
     margin: 0 auto;
@@ -132,6 +130,10 @@ img{
     transform: rotateY(180deg);
 }
 
+.poke__img{
+    max-width: 100%;
+}
+
 @media (max-width: 1190px) {
     .card{
       width: 100px;
@@ -193,12 +195,25 @@ img{
     width: 40%;
     display: flex;
     justify-content: space-evenly;
+    align-items: center;
+    margin-top: 10px;
 }
 
 .play__btn{
     cursor: pointer;
+    padding: 10px;
+    border: 3px solid #396bba;
+    color: #396bba;
+    background-color: #ffe031;
+    font-weight: bold;
+    font-size: 25px;
+    border-radius: 7px;
+    margin-right: 10px;
 }
 
-.player__name{
-
+.crono, .crono__box{
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 6px;
+    color: #fff;
 }
